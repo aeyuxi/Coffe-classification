@@ -67,7 +67,7 @@ def img_norm ( imgs_path ):
 #    norm_dataset = normalize((dataset.astype(np.float32) - mean_img)/sigma_img)
 
 # =============================================================================
-# Model definition for Linear Regression (X*W + b)
+# Model definition for Linear Regression (X*W + b) with sigmoid function
 #TODO: search which is the best loos function and non-linearity     
 # =============================================================================
 try:
@@ -100,7 +100,7 @@ try:
 
 
     cost = tf.reduce_mean(tf.square(pred - Y))
-    optimizer = tf.train.AdamOptimizer(0.000001).minimize(cost)
+    optimizer = tf.train.AdamOptimizer(0.000008).minimize(cost)
     
     init = tf.global_variables_initializer()
    
@@ -113,33 +113,28 @@ try:
         
         array_dataset = img_norm( imgs_path )
         avg_cost_list = []
-        n_iterations = 1000
+        n_iterations = 5000
         for it_i in range(n_iterations):
 
             cost_pred_ac = 0
             for (img, y) in zip(array_dataset, label_array):
                 img_input = np.reshape( img,[1,img_width*img_height] )
                 y_output  = np.reshape( y,[1,] )
-                _ , cost_pred = sess.run([optimizer, cost],feed_dict={X: img_input, Y :  y_output })
-                              
+                _ , cost_pred = sess.run([optimizer, cost],feed_dict={X: img_input, Y :  y_output })                           
                 cost_pred_ac += cost_pred
 
             avg_cost_pred =  cost_pred_ac / size_dataset
-            print("Epoch :  %s    cost :  %s "  %(it_i, avg_cost_pred) )
+            print("Epoch :  %s    cost :  %s  "  %(it_i, avg_cost_pred) )
             avg_cost_list.append(avg_cost_pred)
         
         predictions = pred.eval(feed_dict = {X: array_dataset})
         result = (np.where(predictions>=0.5,1,0))
         print("Prediction :", predictions)
-        accuracy = np.reshape(result,[200,]) -dataset_dict["label_array"]
+        accuracy = abs(np.reshape(result,[size_dataset,]) - dataset_dict["label_array"])
         accuracy = list(accuracy)
-        print("accuracy " , float(accuracy.count(0.0)/200))
+        print("accuracy " , float(accuracy.count(0.0)/size_dataset))
             
-#        correct = tf.equal(tf.argmax(pred, 1), tf.argmax(Y, 1))
-#        accuracy = tf.reduce_mean(tf.cast(correct, 'float'))
-#        print("Accuracy:", accuracy.eval({X: array_dataset, Y :  label_array}))
-
-        plt.plot(cost_list)
+        plt.plot(avg_cost_list)
 #    while True:
 #        key = cv2.waitKey(1)
 #        cv2.imshow("mean", mean_img.astype(np.uint8))
