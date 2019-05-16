@@ -8,8 +8,8 @@ from sklearn.preprocessing import normalize
 
 
 plt.style.use('ggplot' )
-img_width    = 400
-img_height   = 400
+img_width    = 100
+img_height   = 100
 # =============================================================================
 #img_read 
 #dirname: Path directory where the images are located 
@@ -78,7 +78,7 @@ try:
     b = tf.get_variable( name='b',
                         shape=[n_output],
                         dtype=tf.float32,
-                        initializer=tf.constant_initializer( 0.1 ) )
+                        initializer=tf.constant_initializer( 0.01 ) )
 
     Y = tf.placeholder( dtype=tf.float32,
                        shape = [n_output], 
@@ -88,11 +88,11 @@ try:
                        value = tf.matmul( X, W ),
                        bias=b )
 
-    pred = tf.math.sigmoid( h )
+    pred =  tf.nn.relu( h ) 
 
 
     cost = tf.reduce_mean( tf.square( pred - Y ) )
-    optimizer = tf.train.AdamOptimizer( 0.00000004 ).minimize( cost )
+    optimizer = tf.train.AdamOptimizer( 0.0000001 ).minimize( cost )
     init = tf.global_variables_initializer( )
    
     with tf.Session( ) as sess:
@@ -105,7 +105,7 @@ try:
         label_array   = dataset_dict_trainning['label_array']
         dataset_array_trainning = img_norm( imgs_path )
         avg_cost_list = []
-        n_iterations = 10
+        n_iterations = 100
         for it_i in range( n_iterations ):
 
             cost_pred_ac = 0
@@ -135,8 +135,8 @@ try:
         filenames_testing = os.path.join( cwd, dir_coffe_testing )
         
         dataset_dict_testing  = img_read( filenames_testing )
-        imgs_path     = dataset_dict_trainning['imgs_paths']
-        label_array   = dataset_dict_trainning['label_array']
+        imgs_path     = dataset_dict_testing['imgs_paths']
+        label_array   = dataset_dict_testing['label_array']
         dataset_array_testing = img_norm( imgs_path )
         
         validation = pred.eval( feed_dict = {X: dataset_array_testing} )
