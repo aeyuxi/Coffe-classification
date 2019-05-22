@@ -45,18 +45,30 @@ def img_norm ( imgs_path ):
        width, height = img.shape
        if width!= img_width or height!= img_height :
            img = cv2.resize( img, dsize=( img_width, img_height ), interpolation=cv2.INTER_CUBIC )
-       img_list.append( img )    
+       norm_image = cv2.normalize(img, 
+                                   None, 
+                                   alpha=0, 
+                                   beta=1, 
+                                   norm_type=cv2.NORM_MINMAX, 
+                                   dtype=cv2.CV_32F)
+       
+       img_list.append( norm_image )    
     
+    
+    
+    
+#    image = cv2.imread("lenacolor512.tiff", cv2.IMREAD_COLOR)  # uint8 image
+   
     img_array = np.array( img_list )
-    
+
 #    TODO: Use this metrics for the normalization
 #    mean_img = np.mean(img_array, axis=0 )
 #    sigma_img = np.std(img_array, axis=0 )
 
     #each row is an image of the dataset
     dataset = np.reshape( img_array, [len( img_array ), img_height*img_width] )
-    norm_dataset = normalize( dataset.astype( np.float32 ) , norm='max' )
-    return norm_dataset
+#    norm_dataset = normalize( dataset.astype( np.float32 ) , norm='max' )
+    return dataset
 #    norm_dataset = normalize((dataset.astype(np.float32) - mean_img)/sigma_img)
 
 
@@ -212,5 +224,4 @@ finally:
     cv2.destroyAllWindows( ) 
     tf.reset_default_graph(  )
 
-# =============================================================================
 
